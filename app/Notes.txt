@@ -1,0 +1,22 @@
+@app.post("/users", status_code=status.HTTP_201_CREATED)
+def create_user(user: schemas.UserCreate ,db: Session = Depends(get_db)):
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"data": new_user}
+
+
+I'm defining a parameter user which is type-hinted to take a Pydantic model UserCreate defined under the schemas file. FastAPI then:
+
+Parses the JSON request body sent by the client.
+
+Matches the structure and data types of the request body to the schemas.UserCreate Pydantic model.
+
+If validation succeeds, it creates an instance of schemas.UserCreate (a Pydantic object) using the data from the request body.
+
+That Pydantic instance (which is an object) is then passed as the user argument to your create_user function.
+
+Inside your create_user function, the user Pydantic instance is converted into a Python dictionary using user.dict() (or user.model_dump() in Pydantic v2).
+
+Finally, this dictionary is unpacked using ** (the dictionary unpacking operator), and its key-value pairs are used as keyword arguments to create an instance of your models.User (SQLAlchemy ORM model), which then represents the data ready to be added to your users table in the database."
